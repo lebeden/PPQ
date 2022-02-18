@@ -96,3 +96,8 @@ minqa::bobyqa(PARAMS, # note that PARAMS is temporary
 
 grid_opt$minlevels
 
+
+
+# -------------------------------------------------------------------------
+
+

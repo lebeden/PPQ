@@ -87,8 +87,8 @@ VW <- function(Res.service,s){
 }
 
 #' Atomic Simulation for periodic arrivals (cosine model)
-#' @param lambda_0 The constant arrival rate
 #' @param gamma The periodic arrival rate maximum amplitude
+#' @param lambda_0 The constant arrival rate
 #' @param theta Parameter of the exponential patience
 #' @param eta Shape parameter of job size.
 #' @param mu Rate parameter of job size.
@@ -233,6 +233,43 @@ resSimCosine <- function(n, gamma, lambda_0, theta, s, eta, mu){
   return(RES)
 }
 
+
+
+#' Function to make many files with simulation results
+#'
+#' @param N_files Desired number of files to be created in the working directory
+#' @param n_obs Number of effective arrivals per file. Defaults to 10,000. Do not use less than 5000.
+#' @param gamma The periodic arrival rate maximum amplitude
+#' @param lambda_0 The constant arrival rate
+#' @param theta Parameter of the exponential patience
+#' @param eta Shape parameter of job size.
+#' @param mu Rate parameter of job size.
+#' @param s Number of servers.
+#' @details The filenames have the parameter values encoded alongside a timestamp,
+#' which is meant for protection against overwriting in case of repeated calls to this function.
+#' Also note that if files take less than a second to generate, they will not be written.
+#' @return
+#' @export
+#'
+#' @examples
+makeSimFilesAWX <- function(N_files, n_obs, gamma, lambda_0, theta, s, eta, mu){
+  for (i in 1:N_files){
+    RES <- resSimCosine(n=n_obs,gamma = gamma,lambda_0 = lambda_0,theta = theta,s = s,eta = eta,mu = mu)
+    A <- RES$A
+    W <- RES$Wj
+    X <- RES$Xj
+    dat <- data.frame(A=A,W=W,X=X)
+    name <- filenamer::filename(paste0("AWX_","n=",n_obs),
+                                ext = "csv",subdir = FALSE)
+    param_values <- c("gamma"=gamma,"lambda_0"=lambda_0,"theta"=theta,"s"=s,"eta"=eta,"mu" = mu)
+    # making the tag - use only first letter of each parameter name
+    totag <- paste0(substr(names(param_values),1,1),"=",param_values)
+    name <- insert(name,totag)
+    name <- as.character(name)
+    write.csv(dat,file = name,row.names = FALSE)
+
+  }
+}
 
 # Estimation --------------------------------------------------------------
 
